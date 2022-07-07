@@ -40,10 +40,10 @@ fn do_object(args: Iter<String>) -> String {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() == 1 {
+    let args: Vec<String> = env::args().skip(1).collect();
+    if args.len() == 0 {
         usage();
     }
 
-    println!("{}", do_object(args[1..].iter()));
+    println!("{}", do_object(args.iter()));
 }
