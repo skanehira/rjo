@@ -1,5 +1,19 @@
-use clap::{arg, parser::ValuesRef, Command};
+use clap::Parser;
 use std::collections::HashMap;
+
+#[derive(Debug, Parser)]
+#[clap(author, about, version)]
+struct Arugs {
+    #[clap(
+        short = 'a',
+        long = "array",
+        help = "Creates an array of words",
+        parse(from_flag)
+    )]
+    array: bool,
+    #[clap()]
+    values: Vec<String>,
+}
 
 fn parse_value(value: &str) -> serde_json::Value {
     match value {
@@ -14,9 +28,17 @@ fn parse_value(value: &str) -> serde_json::Value {
     }
 }
 
-fn do_object(args: ValuesRef<String>) -> String {
+fn parse(args: Arugs) -> String {
+    if args.array {
+        do_array(args)
+    } else {
+        do_object(args)
+    }
+}
+
+fn do_object(args: Arugs) -> String {
     let mut obj = HashMap::new();
-    for el in args {
+    for el in &args.values {
         let kv: Vec<&str> = el.split('=').collect();
         if kv.len() != 2 {
             panic!("'{}' must be key=value", el);
@@ -26,32 +48,15 @@ fn do_object(args: ValuesRef<String>) -> String {
     serde_json::to_string(&obj).unwrap()
 }
 
-fn do_array(args: ValuesRef<String>) -> String {
+fn do_array(args: Arugs) -> String {
     let mut array: Vec<serde_json::Value> = Vec::new();
-    for el in args {
-        array.push(parse_value(el));
+    for el in &args.values {
+        array.push(parse_value(&el));
     }
     serde_json::to_string(&array).unwrap()
 }
 
 fn main() {
-    let matches = Command::new("rjo")
-        .name("rjo")
-        .version("0.0.1")
-        .author("skanehira")
-        .about("This is jpmens/jo ported with Rust")
-        .args(&[
-            arg!(-a --array "creates an array of words").required(false),
-            arg!(<VALUE>).multiple(true),
-        ])
-        .get_matches();
-
-    let values = matches.get_many::<String>("VALUE").unwrap();
-
-    let result = if matches.contains_id("array") {
-        do_array(values)
-    } else {
-        do_object(values)
-    };
-    println!("{}", result);
+    let args = Arugs::parse();
+    println!("{}", parse(args));
 }

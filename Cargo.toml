@@ -1,11 +1,13 @@
 [package]
 name = "rjo"
 version = "0.0.1"
+authors = ["skanehira <sho19921005@gmail.com>"]
 edition = "2021"
+description = "jpmens/jo ported with Rust"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde = "1.0.138"
 serde_json = "1.0"
-clap = "3.2.8"
+clap = { version = "3.2.8", features = ["derive"] }
