@@ -4,13 +4,12 @@ use std::collections::HashMap;
 #[derive(Debug, Parser)]
 #[clap(author, about, version)]
 struct Arugs {
-    #[clap(
-        short = 'a',
-        long = "array",
-        help = "Creates an array of words",
-        parse(from_flag)
-    )]
+    #[clap(short = 'a', help = "Creates an array of words", parse(from_flag))]
     array: bool,
+
+    #[clap(short = 'p', help = "Pretty-prints", parse(from_flag))]
+    pretty: bool,
+
     #[clap()]
     values: Vec<String>,
 }
@@ -36,6 +35,14 @@ fn parse(args: Arugs) -> String {
     }
 }
 
+fn to_string<T: serde::ser::Serialize>(pretty: bool, value: T) -> String {
+    if pretty {
+        serde_json::to_string_pretty(&value).unwrap()
+    } else {
+        serde_json::to_string(&value).unwrap()
+    }
+}
+
 fn do_object(args: Arugs) -> String {
     let mut obj = HashMap::new();
     for el in &args.values {
@@ -45,7 +52,7 @@ fn do_object(args: Arugs) -> String {
         }
         obj.insert(kv[0], parse_value(kv[1]));
     }
-    serde_json::to_string(&obj).unwrap()
+    to_string(args.pretty, &obj)
 }
 
 fn do_array(args: Arugs) -> String {
@@ -53,7 +60,7 @@ fn do_array(args: Arugs) -> String {
     for el in &args.values {
         array.push(parse_value(&el));
     }
-    serde_json::to_string(&array).unwrap()
+    to_string(args.pretty, &array)
 }
 
 fn main() {
