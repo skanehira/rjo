@@ -1,18 +1,5 @@
+use clap::{arg, parser::ValuesRef, Command};
 use std::collections::HashMap;
-use std::env;
-use std::process::exit;
-use std::slice::Iter;
-
-fn usage() {
-    println!(
-        "{}",
-        r#"Usage of rjo
-examples:
-  rjo name=gorilla age=10 # => {"name": "gorilla", "age": 10}
-"#
-    );
-    exit(1);
-}
 
 fn parse_value(value: &str) -> serde_json::Value {
     match value {
@@ -27,7 +14,7 @@ fn parse_value(value: &str) -> serde_json::Value {
     }
 }
 
-fn do_object(args: Iter<String>) -> String {
+fn do_object(args: ValuesRef<String>) -> String {
     let mut obj = HashMap::new();
     for el in args {
         let kv: Vec<&str> = el.split("=").collect();
@@ -39,11 +26,32 @@ fn do_object(args: Iter<String>) -> String {
     serde_json::to_string(&obj).unwrap()
 }
 
-fn main() {
-    let args: Vec<String> = env::args().skip(1).collect();
-    if args.len() == 0 {
-        usage();
+fn do_array(args: ValuesRef<String>) -> String {
+    let mut array: Vec<serde_json::Value> = Vec::new();
+    for el in args {
+        array.push(parse_value(el));
     }
+    serde_json::to_string(&array).unwrap()
+}
 
-    println!("{}", do_object(args.iter()));
+fn main() {
+    let matches = Command::new("rjo")
+        .name("rjo")
+        .version("0.0.1")
+        .author("skanehira")
+        .about("This is jpmens/jo ported with Rust")
+        .args(&[
+            arg!(-a --array "creates an array of words").required(false),
+            arg!(<VALUE>).multiple(true),
+        ])
+        .get_matches();
+
+    let values = matches.get_many::<String>("VALUE").unwrap();
+
+    let result = if matches.contains_id("array") {
+        do_array(values)
+    } else {
+        do_object(values)
+    };
+    println!("{}", result);
 }
