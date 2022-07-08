@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Parser)]
 #[clap(author, about, version)]
@@ -21,7 +21,8 @@ fn parse_value(value: &str) -> serde_json::Value {
         "null" => serde_json::Value::Null,
         _ => match value.chars().next().unwrap() {
             '{' | '[' | '"' => serde_json::from_str(value).unwrap(),
-            '0'..='9' => serde_json::Value::Number(value.parse().unwrap()),
+            '0'..='9' | '-' => serde_json::Value::Number(value.parse().unwrap()),
+            '+' => serde_json::Value::Number(value.trim_start_matches('+').parse().unwrap()),
             _ => serde_json::Value::String(value.to_string()),
         },
     }
@@ -44,7 +45,7 @@ fn to_string<T: serde::ser::Serialize>(pretty: bool, value: T) -> String {
 }
 
 fn do_object(args: Args) -> String {
-    let mut obj = HashMap::new();
+    let mut obj = BTreeMap::new();
     for el in &args.values {
         let kv: Vec<&str> = el.split('=').collect();
         if kv.len() != 2 {
@@ -58,7 +59,7 @@ fn do_object(args: Args) -> String {
 fn do_array(args: Args) -> String {
     let mut array: Vec<serde_json::Value> = Vec::new();
     for el in &args.values {
-        array.push(parse_value(&el));
+        array.push(parse_value(el));
     }
     to_string(args.pretty, &array)
 }
@@ -66,4 +67,55 @@ fn do_array(args: Args) -> String {
 fn main() {
     let args = Args::parse();
     println!("{}", parse(args));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_do_object() {
+        let args = Args {
+            array: false,
+            pretty: false,
+            values: vec![
+                String::from("name=gorilla"),
+                String::from("age=10"),
+                String::from(r#"likes=["Go", "Vim", "Docker"]"#),
+                String::from(r#"address={"post_code": "123-4567", "name": "上野動物園"}"#),
+            ],
+        };
+        assert_eq!(
+            parse(args),
+            r#"{"address":{"name":"上野動物園","post_code":"123-4567"},"age":10,"likes":["Go","Vim","Docker"],"name":"gorilla"}"#
+        )
+    }
+
+    #[test]
+    fn test_do_array() {
+        let args = Args {
+            array: true,
+            pretty: false,
+            values: vec![
+                String::from("a"),
+                String::from("1"),
+                String::from("1.5"),
+                String::from("-1"),
+                String::from("-10.5"),
+                String::from("+3"),
+                String::from("\"null\""),
+                String::from("\"true\""),
+                String::from("\"false\""),
+                String::from("null"),
+                String::from("true"),
+                String::from("false"),
+                String::from(r#"{"address":{"post_code": "123-4567", "name": "上野動物園"}}"#),
+                String::from(r#"[1,2,true,false,null]"#),
+            ],
+        };
+        assert_eq!(
+            parse(args),
+            r#"["a",1,1.5,-1,-10.5,3,"null","true","false",null,true,false,{"address":{"name":"上野動物園","post_code":"123-4567"}},[1,2,true,false,null]]"#
+        )
+    }
 }
