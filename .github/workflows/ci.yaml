@@ -16,7 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: Swatinem/rust-cache@v1
+      - name: Cache toolchain
+        uses: Swatinem/rust-cache@v1
       - name: Update toolchain
         run: |
           rustup update stable
@@ -36,7 +37,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: Swatinem/rust-cache@v1
+      - name: Cache toolchain
+        uses: Swatinem/rust-cache@v1
       - name: Update toolchain
         run: |
           rustup update ${{ matrix.toolchain }}
