@@ -6,7 +6,7 @@ fn parse_value(value: &str) -> serde_json::Value {
         "true" => serde_json::Value::Bool(true),
         "false" => serde_json::Value::Bool(false),
         "null" => serde_json::Value::Null,
-        _ => match value.chars().nth(0).unwrap() {
+        _ => match value.chars().next().unwrap() {
             '{' | '[' | '"' => serde_json::from_str(value).unwrap(),
             '0'..='9' => serde_json::Value::Number(value.parse().unwrap()),
             _ => serde_json::Value::String(value.to_string()),
@@ -17,7 +17,7 @@ fn parse_value(value: &str) -> serde_json::Value {
 fn do_object(args: ValuesRef<String>) -> String {
     let mut obj = HashMap::new();
     for el in args {
-        let kv: Vec<&str> = el.split("=").collect();
+        let kv: Vec<&str> = el.split('=').collect();
         if kv.len() != 2 {
             panic!("'{}' must be key=value", el);
         }
