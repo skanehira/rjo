@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Parser)]
 #[clap(author, about, version)]
-struct Arugs {
+struct Args {
     #[clap(short = 'a', help = "Creates an array of words", parse(from_flag))]
     array: bool,
 
@@ -27,7 +27,7 @@ fn parse_value(value: &str) -> serde_json::Value {
     }
 }
 
-fn parse(args: Arugs) -> String {
+fn parse(args: Args) -> String {
     if args.array {
         do_array(args)
     } else {
@@ -43,7 +43,7 @@ fn to_string<T: serde::ser::Serialize>(pretty: bool, value: T) -> String {
     }
 }
 
-fn do_object(args: Arugs) -> String {
+fn do_object(args: Args) -> String {
     let mut obj = HashMap::new();
     for el in &args.values {
         let kv: Vec<&str> = el.split('=').collect();
@@ -55,7 +55,7 @@ fn do_object(args: Arugs) -> String {
     to_string(args.pretty, &obj)
 }
 
-fn do_array(args: Arugs) -> String {
+fn do_array(args: Args) -> String {
     let mut array: Vec<serde_json::Value> = Vec::new();
     for el in &args.values {
         array.push(parse_value(&el));
@@ -64,6 +64,6 @@ fn do_array(args: Arugs) -> String {
 }
 
 fn main() {
-    let args = Arugs::parse();
+    let args = Args::parse();
     println!("{}", parse(args));
 }
