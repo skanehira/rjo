@@ -19,6 +19,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/registry/src/
@@ -44,6 +45,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/registry/src/
