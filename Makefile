@@ -13,3 +13,7 @@ test:
 .PHONY: install
 install:
 	@cargo install --path .
+
+.PHONY: check
+check:
+	@cargo check
