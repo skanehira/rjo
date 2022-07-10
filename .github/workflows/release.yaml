@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Cache toolchain
+        uses: Swatinem/rust-cache@v1
+      - name: Update toolchain
+        run: |
+          rustup update stable
+          rustup default stable
+      - name: Add Rust components
+        run: |
+          make add-target
+      - name: Install zig
+        uses: goto-bus-stop/setup-zig@v1
+        with:
+          version: 0.9.1
+      - name: Install cargo-zigbuild
+        run: |
+          cargo install cargo-zigbuild
+      - name: Build
+        run: |
+          make target-build
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          omitBody: true
+          artifacts: 'target/*/release/rjo,target/*/release/rjo.exe'
+          token: ${{ secrets.GITHUB_TOKEN }}
