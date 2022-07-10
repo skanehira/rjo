@@ -10,7 +10,6 @@ struct Args {
     #[clap(short = 'p', help = "Pretty-prints", parse(from_flag))]
     pretty: bool,
 
-    #[clap()]
     values: Vec<String>,
 }
 
@@ -45,7 +44,7 @@ fn to_string<T: serde::ser::Serialize>(pretty: bool, value: T) -> String {
 }
 
 fn do_object(args: Args) -> String {
-    let mut obj = BTreeMap::new();
+    let mut obj = BTreeMap::<&str, serde_json::Value>::new();
     for el in &args.values {
         let kv: Vec<&str> = el.split('=').collect();
         if kv.len() != 2 {
