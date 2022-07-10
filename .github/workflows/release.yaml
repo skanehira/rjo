@@ -22,7 +22,7 @@ jobs:
           rustup default stable
       - name: Add Rust components
         run: |
-          make add-target
+          make target-add
       - name: Install zig
         uses: goto-bus-stop/setup-zig@v1
         with:
