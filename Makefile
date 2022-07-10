@@ -27,3 +27,7 @@ target-add:
 .PHONY: target-build
 target-build: target-add
 	@for target in $(TARGET); do echo $$target; cargo zigbuild --release --target $$target; done
+
+.PHONY: target-archive
+target-archive: target-build
+	@bash archive.sh $(TARGET)

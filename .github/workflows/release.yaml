@@ -27,12 +27,12 @@ jobs:
       - name: Install cargo-zigbuild
         run: |
           cargo install cargo-zigbuild
-      - name: Build
+      - name: Build and archive
         run: |
-          make target-build
+          make target-archive
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
           omitBody: true
-          artifacts: 'target/*/release/rjo,target/*/release/rjo.exe'
+          artifacts: 'release/*'
           token: ${{ secrets.GITHUB_TOKEN }}
