@@ -13,6 +13,9 @@ on:
 jobs:
   lint:
     name: lint
+    strategy:
+      matrix:
+        toolchain: [stable, beta, nightly]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -54,6 +57,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
+        toolchain: [stable, beta, nightly]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -62,13 +66,13 @@ jobs:
       - name: Setup Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: stable
+            toolchain: ${{ matrix.toolchain }}
             override: true
       - name: Install shellspec
         run: |
           # add shellspec bin to PATH
           echo $HOME/.local/bin >> $GITHUB_PATH
-          curl -fsSL https://git.io/shellspec | sh
+          curl -fsSL https://git.io/shellspec | sh -s -- --yes
       - name: Test
         run: |
           make install
