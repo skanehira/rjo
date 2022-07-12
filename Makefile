@@ -12,6 +12,10 @@ fix:
 test:
 	@cargo test
 
+.PHONY: shellspec
+shellspec:
+	@shellspec
+
 .PHONY: install
 install:
 	@cargo install --path .
