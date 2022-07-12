@@ -18,11 +18,14 @@ fn parse_value(value: &str) -> serde_json::Value {
         "true" => serde_json::Value::Bool(true),
         "false" => serde_json::Value::Bool(false),
         "null" => serde_json::Value::Null,
-        _ => match value.chars().next().unwrap() {
-            '{' | '[' | '"' => serde_json::from_str(value).unwrap(),
-            '0'..='9' | '-' => serde_json::Value::Number(value.parse().unwrap()),
-            '+' => serde_json::Value::Number(value.trim_start_matches('+').parse().unwrap()),
-            _ => serde_json::Value::String(value.to_string()),
+        _ => match value.chars().next() {
+            Some(char) => match char {
+                '{' | '[' | '"' => serde_json::from_str(value).unwrap(),
+                '0'..='9' | '-' => serde_json::Value::Number(value.parse().unwrap()),
+                '+' => serde_json::Value::Number(value.trim_start_matches('+').parse().unwrap()),
+                _ => serde_json::Value::String(value.to_string()),
+            },
+            None => panic!("invalid value: {}", value),
         },
     }
 }
