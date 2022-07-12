@@ -4,10 +4,10 @@ use std::collections::BTreeMap;
 #[derive(Debug, Parser)]
 #[clap(author, about, version)]
 struct Args {
-    #[clap(short = 'a', help = "Creates an array of words", parse(from_flag))]
+    #[clap(short = 'a', help = "Creates an array of words")]
     array: bool,
 
-    #[clap(short = 'p', help = "Pretty-prints", parse(from_flag))]
+    #[clap(short = 'p', help = "Pretty-prints")]
     pretty: bool,
 
     values: Vec<String>,
