@@ -16,17 +16,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          targets: "x86_64-unknown-linux-gnu, x86_64-apple-darwin, x86_64-pc-windows-gnu, aarch64-unknown-linux-gnu, aarch64-apple-darwin"
+
       - name: Install zig
         uses: mlugg/setup-zig@v1
 
       - name: Install cargo-zigbuild
         run: |
           cargo install cargo-zigbuild
-
-      - name: Setup
-        uses: ./.github/actions/setup
-        with:
-          targets: "x86_64-unknown-linux-gnu, x86_64-apple-darwin, x86_64-pc-windows-gnu, aarch64-unknown-linux-gnu, aarch64-apple-darwin"
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
