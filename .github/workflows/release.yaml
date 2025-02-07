@@ -10,28 +10,23 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Cache toolchain
-        uses: Swatinem/rust-cache@v1
-      - name: Update toolchain
-        run: |
-          rustup update stable
-          rustup default stable
-      - name: Install zig
-        uses: goto-bus-stop/setup-zig@v1
+
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
-          version: 0.9.1
-      - name: Install cargo-zigbuild
-        run: |
-          cargo install cargo-zigbuild
-      - name: Build and archive
-        run: |
-          make target-archive
-      - name: Create release
-        uses: ncipollo/release-action@v1
+          targets: "x86_64-unknown-linux-gnu, x86_64-apple-darwin, x86_64-pc-windows-gnu, aarch64-unknown-linux-gnu, aarch64-apple-darwin"
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          omitBody: true
-          artifacts: 'release/*'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # either 'goreleaser' (default) or 'goreleaser-pro'
+          distribution: goreleaser
+          # 'latest', 'nightly', or a semver
+          version: '~> v2'
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -10,68 +10,45 @@ on:
     paths-ignore:
       - 'README.md'
       - '.gitignore'
+  workflow_dispatch:
+
 jobs:
   lint:
     name: lint
-    strategy:
-      matrix:
-        toolchain: [stable, beta, nightly]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Cache toolchain
-        uses: Swatinem/rust-cache@v1
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: ${{ matrix.toolchain }}
-            override: true
-            components: rustfmt, clippy
-      - name: Check build
-        run: |
-          make check
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - name: Lint
         run: |
           make lint
+
   test:
     name: test
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        toolchain: [stable, beta, nightly]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Cache toolchain
-        uses: Swatinem/rust-cache@v1
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: ${{ matrix.toolchain }}
-            override: true
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - name: Test
         run: |
           make test
+
   test-e2e:
     name: test-e2e
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest]
-        toolchain: [stable, beta, nightly]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Cache toolchain
-        uses: Swatinem/rust-cache@v1
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: ${{ matrix.toolchain }}
-            override: true
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
       - name: Install shellspec
         run: |
           # add shellspec bin to PATH
-          echo $HOME/.local/bin >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           curl -fsSL https://git.io/shellspec | sh -s -- --yes
       - name: Test
         run: |
